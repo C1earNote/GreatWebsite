@@ -20,18 +20,21 @@ body {
     text-align: center;
 }
 
+/* Main Heading */
 .main-container h1 {
     font-size: 24px;
     margin-bottom: 10px;
     color: #333333;
 }
 
+/* Subtext for the user status */
 .main-container p {
     font-size: 14px;
     color: #555555;
     margin-bottom: 20px;
 }
 
+/* Section Headings */
 h2 {
     font-size: 20px;
     margin: 20px 0 10px;
@@ -84,22 +87,58 @@ form#messageForm button:hover {
     background-color: #45a047;
 }
 
+/* Messages List Container */
+#messagesListContainer {
+    max-height: 400px;
+    overflow-y: scroll;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+}
+
 /* Messages List */
 #messagesList {
-    max-height: 200px;
-    overflow-y: auto;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
-    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
     text-align: left;
     font-size: 14px;
     line-height: 1.5;
-    margin-bottom: 20px;
 }
 
-/* Logout Button */
-button {
+/* Individual Message Bubbles */
+.message {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #e2e2e2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Styling for Received Messages */
+.received {
+    background-color: #d1ffd1;  /* Light green for received messages */
+    align-items: flex-start;
+}
+
+/* Styling for Sent Messages */
+.sent {
+    background-color: #e0e0e0;  /* Light gray for sent messages */
+    align-items: flex-end;
+}
+
+/* Styling for Timestamp */
+.timestamp {
+    font-size: 12px;  /* Smaller font size */
+    color: #888;      /* Light gray color for the timestamp */
+    margin-left: 10px; /* Optional: space between the message and timestamp */
+}
+
+/* Button for Logging Out */
+button#logoutButton {
     background-color: #d9534f;
     color: #ffffff;
     border: none;
@@ -110,12 +149,6 @@ button {
     transition: background-color 0.3s ease;
 }
 
-button:hover {
+button#logoutButton:hover {
     background-color: #c9302c;
-}
-
-.timestamp {
-    font-size: 12px;  /* Smaller font size */
-    color: #888;      /* Light gray color for the timestamp */
-    margin-left: 10px; /* Optional: space between the message and timestamp */
 }

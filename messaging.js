@@ -85,39 +85,38 @@ async function loadMessages(username) {
 // Function to display the messages
 function displayMessages(data) {
     const messagesList = document.getElementById("messagesList");
-    
+
     // Clear previous messages
     messagesList.innerHTML = "";
 
-    // Display received messages
-    data.received.forEach(msg => {
+    // Combine received and sent messages into a single array and sort by timestamp
+    const allMessages = [...data.received.map(msg => ({ ...msg, type: "received" })), 
+                         ...data.sent.map(msg => ({ ...msg, type: "sent" }))];
+
+    // Sort messages by timestamp
+    allMessages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+    // Loop through all messages and display them in order
+    allMessages.forEach(msg => {
         const messageDiv = document.createElement("div");
         messageDiv.classList.add("message");
 
-        // Create the message content and timestamp separately
+        // Add classes for styling based on whether the message was sent or received
+        if (msg.type === "received") {
+            messageDiv.classList.add("received");
+        } else {
+            messageDiv.classList.add("sent");
+        }
+
         const messageContent = document.createElement("span");
-        messageContent.textContent = `${msg.sender}: ${msg.content}`;
-        
         const timestamp = document.createElement("span");
-        timestamp.textContent = ` (Sent at: ${msg.timestamp})`;
-        timestamp.classList.add("timestamp");  // Apply a class for styling
 
-        // Append both parts to the message div
-        messageDiv.appendChild(messageContent);
-        messageDiv.appendChild(timestamp);
-        messagesList.appendChild(messageDiv);
-    });
+        if (msg.type === "received") {
+            messageContent.textContent = `${msg.sender}: ${msg.content}`;
+        } else {
+            messageContent.textContent = `You: ${msg.content}`;
+        }
 
-    // Display sent messages
-    data.sent.forEach(msg => {
-        const messageDiv = document.createElement("div");
-        messageDiv.classList.add("message");
-
-        // Create the message content and timestamp separately
-        const messageContent = document.createElement("span");
-        messageContent.textContent = `You: ${msg.content}`;
-        
-        const timestamp = document.createElement("span");
         timestamp.textContent = ` (Sent at: ${msg.timestamp})`;
         timestamp.classList.add("timestamp");  // Apply a class for styling
 
@@ -127,6 +126,7 @@ function displayMessages(data) {
         messagesList.appendChild(messageDiv);
     });
 }
+
 
 // Socket.IO connection to listen for new messages
 const socket = io("https://greatwebsite.onrender.com");
