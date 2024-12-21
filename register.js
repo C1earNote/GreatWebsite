@@ -10,7 +10,8 @@ document.getElementById("registerForm").addEventListener("submit", async functio
     }
 
     try {
-        const response = await fetch("http://35.160.120.126:5000/register", {  // Use the IP address
+        // Use the correct domain for your backend
+        const response = await fetch("https://greatwebsite.onrender.com/register", {  // Corrected URL
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

@@ -12,7 +12,7 @@ document.getElementById("messageForm").addEventListener("submit", async function
 
     try {
         // Send a POST request to the backend to save the message
-        const response = await fetch("http://35.160.120.126:5000/messages", {  // Use the IP address
+        const response = await fetch("https://greatwebsite.onrender.com/messages", {  // Corrected URL
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

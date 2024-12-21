@@ -10,7 +10,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
     }
 
     try {
-        const response = await fetch("http://35.160.120.126:5000/login", {  // Use the IP address
+        const response = await fetch("https://greatwebsite.onrender.com/login", {  // Corrected URL
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
