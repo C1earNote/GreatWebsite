@@ -16,7 +16,7 @@ app.config['SECRET_KEY'] = 'your-secret-key'
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Configure MongoDB
-app.config['MONGO_URI'] = 'mongodb://localhost:27017/your_db_name'  # MongoDB URI
+app.config['MONGO_URI'] = 'postgresql://dbdbase_user:w82vkLMjw6Q4UoApnlzIjtCCCwIku0c9@dpg-ctjebsd2ng1s73bj0e70-a/dbdbase'  # MongoDB URI
 mongo = PyMongo(app)
 
 # User collection (MongoDB does not require predefined schema, but we can define a structure)
