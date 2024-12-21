@@ -7,6 +7,7 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+    overflow: hidden; /* Prevents body from scrolling */
 }
 
 /* Main Container */
@@ -18,6 +19,8 @@ body {
     max-width: 600px;
     width: 90%;
     text-align: center;
+    height: 80%; /* Limit the height to 80% of the screen */
+    overflow: hidden; /* Prevents the main container from growing too large */
 }
 
 /* Main Heading */
@@ -89,7 +92,7 @@ form#messageForm button:hover {
 
 /* Messages List Container */
 #messagesListContainer {
-    max-height: 400px;
+    max-height: 300px; /* Reduced height for better visibility */
     overflow-y: scroll;
     margin-bottom: 20px;
     padding: 10px;
