@@ -4,28 +4,26 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f9;
     display: flex;
-    justify-content: center; /* Keeps the centering */
-    align-items: flex-start; /* Start alignment to fill available space vertically */
-    height: 100vh;
-    overflow: hidden;
+    justify-content: center;
+    align-items: flex-start; /* Align to the top to allow scrolling */
+    height: auto; /* Allow body to adjust height based on content */
+    overflow-y: auto; /* Enable scrolling for the body if needed */
 }
 
 /* Main Container */
-/* Main Container (Responsive Height) */
 .main-container {
     margin: 10px;
     background-color: #ffffff;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    max-width: 900px;
+    max-width: 900px; /* Allow a maximum width */
     width: 100%;
     text-align: center;
-    min-height: calc(100vh - 20px); /* Subtract margin to fit within the viewport */
-    overflow-y: auto; /* Enable scrolling for overflowing content */
-    box-sizing: border-box;
+    min-height: 100%; /* Ensures it takes the full viewport height initially */
+    box-sizing: border-box; /* Includes padding and border in width/height */
+    overflow-y: auto; /* Scroll content inside the container if necessary */
 }
-
 
 /* Main Heading */
 .main-container h1 {
