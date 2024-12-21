@@ -27,7 +27,9 @@ document.getElementById("messageForm").addEventListener("submit", async function
         const data = await response.json();
 
         if (response.ok) {
+            alert("Message sent successfully!");  // Display success message
             loadMessages(senderUsername); // Reload messages after sending
+            clearMessageForm();  // Optional: Clear the message form fields
         } else {
             alert(`Error: ${data.message}`);
         }
@@ -35,4 +37,59 @@ document.getElementById("messageForm").addEventListener("submit", async function
         alert("An error occurred. Please try again later.");
         console.error("Error:", error);
     }
+});
+
+// Optional: Clear the message form after sending the message
+function clearMessageForm() {
+    document.getElementById("receiver").value = "";
+    document.getElementById("messageContent").value = "";
+}
+
+// Optional: Load messages function to reload the messages
+async function loadMessages(username) {
+    try {
+        const response = await fetch(`https://greatwebsite.onrender.com/messages/${username}`);
+        const data = await response.json();
+
+        if (response.ok) {
+            displayMessages(data);  // Assuming you have a function to display messages
+        } else {
+            alert("Error loading messages.");
+        }
+    } catch (error) {
+        console.error("Error loading messages:", error);
+    }
+}
+
+// Function to display the messages (for example)
+function displayMessages(data) {
+    const receivedMessagesContainer = document.getElementById("receivedMessages");
+    const sentMessagesContainer = document.getElementById("sentMessages");
+
+    // Clear previous messages
+    receivedMessagesContainer.innerHTML = "";
+    sentMessagesContainer.innerHTML = "";
+
+    // Display received messages
+    data.received.forEach(msg => {
+        const messageDiv = document.createElement("div");
+        messageDiv.textContent = `${msg.sender}: ${msg.content} (Sent at: ${msg.timestamp})`;
+        receivedMessagesContainer.appendChild(messageDiv);
+    });
+
+    // Display sent messages
+    data.sent.forEach(msg => {
+        const messageDiv = document.createElement("div");
+        messageDiv.textContent = `${msg.receiver}: ${msg.content} (Sent at: ${msg.timestamp})`;
+        sentMessagesContainer.appendChild(messageDiv);
+    });
+}
+
+// Socket.IO connection to listen for new messages
+const socket = io("https://greatwebsite.onrender.com");  // Ensure the correct URL
+
+socket.on("new_message", function (messageData) {
+    console.log("New message received:", messageData);
+    // You can directly update the UI or reload messages if necessary
+    loadMessages(localStorage.getItem("username"));
 });
