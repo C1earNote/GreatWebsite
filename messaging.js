@@ -62,7 +62,7 @@ document.getElementById("messageForm").addEventListener("submit", async function
 
 // Clear the message form after sending the message
 function clearMessageForm() {
-    document.getElementById("receiver").value = "";
+    //document.getElementById("receiver").value = "";
     document.getElementById("messageContent").value = "";
 }
 
