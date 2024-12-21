@@ -4,8 +4,13 @@ document.getElementById("registerForm").addEventListener("submit", async functio
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
 
+    if (!username || !password) {
+        alert("Username and password are required.");
+        return;
+    }
+
     try {
-        const response = await fetch("http://127.0.0.1:5000/register", {
+        const response = await fetch("http://35.160.120.126:5000/register", {  // Use the IP address
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -19,7 +24,6 @@ document.getElementById("registerForm").addEventListener("submit", async functio
         const data = await response.json();
 
         if (response.ok) {
-            //alert("Registration successful! You can now login.");
             window.location.href = "index.html"; // Redirect to login page
         } else {
             alert(`Error: ${data.message}`);
