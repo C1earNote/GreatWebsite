@@ -70,6 +70,7 @@ def login():
     username = data.get('username')
     password = data.get('password')
 
+    # Use SQLAlchemy query
     user = User.query.filter_by(username=username).first()
     if not user or not checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
         return jsonify({"message": "Invalid username or password"}), 401
