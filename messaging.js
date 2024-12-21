@@ -27,7 +27,7 @@ document.getElementById("messageForm").addEventListener("submit", async function
         const data = await response.json();
 
         if (response.ok) {
-            alert("Message sent successfully!");  // Display success message
+            //alert("Message sent successfully!");  // Display success message
             loadMessages(senderUsername); // Reload messages after sending
             clearMessageForm();  // Optional: Clear the message form fields
         } else {
@@ -72,7 +72,18 @@ function displayMessages(data) {
     data.received.forEach(msg => {
         const messageDiv = document.createElement("div");
         messageDiv.classList.add("message");
-        messageDiv.textContent = `User (${msg.sender}): ${msg.content} (Sent at: ${msg.timestamp})`;
+
+        // Create the message content and timestamp separately
+        const messageContent = document.createElement("span");
+        messageContent.textContent = `${msg.sender}: ${msg.content}`;
+        
+        const timestamp = document.createElement("span");
+        timestamp.textContent = ` (Sent at: ${msg.timestamp})`;
+        timestamp.classList.add("timestamp");  // Apply a class for styling
+
+        // Append both parts to the message div
+        messageDiv.appendChild(messageContent);
+        messageDiv.appendChild(timestamp);
         messagesList.appendChild(messageDiv);
     });
 
@@ -80,7 +91,18 @@ function displayMessages(data) {
     data.sent.forEach(msg => {
         const messageDiv = document.createElement("div");
         messageDiv.classList.add("message");
-        messageDiv.textContent = `You (To: ${msg.receiver}): ${msg.content} (Sent at: ${msg.timestamp})`;
+
+        // Create the message content and timestamp separately
+        const messageContent = document.createElement("span");
+        messageContent.textContent = `You: ${msg.content}`;
+        
+        const timestamp = document.createElement("span");
+        timestamp.textContent = ` (Sent at: ${msg.timestamp})`;
+        timestamp.classList.add("timestamp");  // Apply a class for styling
+
+        // Append both parts to the message div
+        messageDiv.appendChild(messageContent);
+        messageDiv.appendChild(timestamp);
         messagesList.appendChild(messageDiv);
     });
 }

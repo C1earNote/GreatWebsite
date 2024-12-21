@@ -113,3 +113,9 @@ button {
 button:hover {
     background-color: #c9302c;
 }
+
+.timestamp {
+    font-size: 12px;  /* Smaller font size */
+    color: #888;      /* Light gray color for the timestamp */
+    margin-left: 10px; /* Optional: space between the message and timestamp */
+}
