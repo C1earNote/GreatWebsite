@@ -16,7 +16,7 @@ app.config['SECRET_KEY'] = 'your-secret-key'
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Configure PostgreSQL
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://dbdbase_user:w82vkLMjw6Q4UoApnlzIjtCCCwIku0c9@dpg-ctjebsd2ng1s73bj0e70-a/dbdbase'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://dbdbase_user:w82vkLMjw6Q4UoApnlzIjtCCCwIku0c9@dpg-ctjebsd2ng1s73bj0e70-a.oregon-postgres.render.com/dbdbase'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -142,4 +142,4 @@ def handle_disconnect():
 # Run the application
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    socketio.run(app, debug=True, host='0.0.0.0', port=port)
+    socketio.run(app, debug=True, host='0.0.0.0:5000', port=port)
