@@ -1,6 +1,6 @@
 import os
 from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
+from flask_pymongo import PyMongo
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 from bcrypt import hashpw, gensalt, checkpw
@@ -15,36 +15,15 @@ CORS(app)
 app.config['SECRET_KEY'] = 'your-secret-key'
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# Configurations
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# Configure MongoDB
+app.config['MONGO_URI'] = 'mongodb://localhost:27017/your_db_name'  # MongoDB URI
+mongo = PyMongo(app)
 
-# Initialize the database
-db = SQLAlchemy(app)
+# User collection (MongoDB does not require predefined schema, but we can define a structure)
+users_collection = mongo.db.users
 
-# User Model
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(255), nullable=False)
-
-# Message Model
-class Message(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    content = db.Column(db.String(255), nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-
-    sender = db.relationship('User', foreign_keys=[sender_id], backref='sent_messages')
-    receiver = db.relationship('User', foreign_keys=[receiver_id], backref='received_messages')
-
-# Create the database tables
-with app.app_context():
-    try:
-        db.create_all()
-    except Exception as e:
-        print(f"Error initializing the database: {e}")
+# Messages collection
+messages_collection = mongo.db.messages
 
 # Register Endpoint
 @app.route('/register', methods=['POST'])
@@ -57,13 +36,11 @@ def register():
     username = data.get('username')
     password = data.get('password')
 
-    if User.query.filter_by(username=username).first():
+    if users_collection.find_one({'username': username}):
         return jsonify({"message": "Username already exists"}), 400
 
     hashed_password = hashpw(password.encode('utf-8'), gensalt())
-    new_user = User(username=username, password=hashed_password)
-    db.session.add(new_user)
-    db.session.commit()
+    users_collection.insert_one({'username': username, 'password': hashed_password})
 
     return jsonify({"message": "User registered successfully"}), 201
 
@@ -78,8 +55,8 @@ def login():
     username = data.get('username')
     password = data.get('password')
 
-    user = User.query.filter_by(username=username).first()
-    if not user or not checkpw(password.encode('utf-8'), user.password):
+    user = users_collection.find_one({'username': username})
+    if not user or not checkpw(password.encode('utf-8'), user['password']):
         return jsonify({"message": "Invalid username or password"}), 401
 
     return jsonify({"message": "Login successful"}), 200
@@ -96,26 +73,29 @@ def send_message():
     if not sender_username or not receiver_username or not content:
         return jsonify({"message": "Sender, receiver, and content are required"}), 400
 
-    sender = User.query.filter_by(username=sender_username).first()
-    receiver = User.query.filter_by(username=receiver_username).first()
+    sender = users_collection.find_one({'username': sender_username})
+    receiver = users_collection.find_one({'username': receiver_username})
 
     if not sender or not receiver:
         return jsonify({"message": "Sender or receiver not found"}), 404
 
     try:
-        new_message = Message(sender_id=sender.id, receiver_id=receiver.id, content=content)
-        db.session.add(new_message)
-        db.session.commit()
+        new_message = {
+            'sender_id': sender['_id'],
+            'receiver_id': receiver['_id'],
+            'content': content,
+            'timestamp': datetime.utcnow()
+        }
+        messages_collection.insert_one(new_message)
 
         message_data = {
-            "sender": sender.username,
-            "receiver": receiver.username,
-            "content": content,
-            "timestamp": new_message.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+            'sender': sender['username'],
+            'receiver': receiver['username'],
+            'content': content,
+            'timestamp': new_message['timestamp'].strftime("%Y-%m-%d %H:%M:%S")
         }
         socketio.emit('new_message', message_data)
         print("Message emitted to frontend: ", message_data)  # Log message emission
-
 
         return jsonify({"message": "Message sent successfully"}), 201
     except Exception as e:
@@ -124,16 +104,16 @@ def send_message():
 # Get Messages Endpoint
 @app.route('/messages/<username>', methods=['GET'])
 def get_messages(username):
-    user = User.query.filter_by(username=username).first()
+    user = users_collection.find_one({'username': username})
 
     if not user:
         return jsonify({"message": "User not found"}), 404
 
-    received_messages = Message.query.filter_by(receiver_id=user.id).all()
-    sent_messages = Message.query.filter_by(sender_id=user.id).all()
+    received_messages = messages_collection.find({'receiver_id': user['_id']})
+    sent_messages = messages_collection.find({'sender_id': user['_id']})
 
-    received = [{"sender": msg.sender.username, "content": msg.content, "timestamp": msg.timestamp} for msg in received_messages]
-    sent = [{"receiver": msg.receiver.username, "content": msg.content, "timestamp": msg.timestamp} for msg in sent_messages]
+    received = [{"sender": str(msg['sender_id']), "content": msg['content'], "timestamp": msg['timestamp']} for msg in received_messages]
+    sent = [{"receiver": str(msg['receiver_id']), "content": msg['content'], "timestamp": msg['timestamp']} for msg in sent_messages]
 
     return jsonify({"received": received, "sent": sent}), 200
 
