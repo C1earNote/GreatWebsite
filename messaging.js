@@ -127,11 +127,46 @@ function displayMessages(data) {
     });
 }
 
-
 // Socket.IO connection to listen for new messages
 const socket = io("https://greatwebsite.onrender.com");
 
 socket.on("new_message", function (messageData) {
     console.log("New message received:", messageData);
-    loadMessages(localStorage.getItem("username"));
+
+    // Check if the message involves the logged-in user
+    const username = localStorage.getItem("username");
+    if (messageData.sender === username || messageData.receiver === username) {
+        // Add the new message to the messages list dynamically
+        addMessageToList(messageData);
+    }
 });
+
+// Function to dynamically add a new message to the messages list
+function addMessageToList(messageData) {
+    const messagesList = document.getElementById("messagesList");
+
+    // Create a new message div
+    const messageDiv = document.createElement("div");
+    messageDiv.classList.add("message");
+
+    // Determine the type of message (sent or received)
+    if (messageData.sender === localStorage.getItem("username")) {
+        messageDiv.classList.add("sent");
+        messageDiv.textContent = `You: ${messageData.content}`;
+    } else {
+        messageDiv.classList.add("received");
+        messageDiv.textContent = `${messageData.sender}: ${messageData.content}`;
+    }
+
+    // Add timestamp
+    const timestamp = document.createElement("span");
+    timestamp.textContent = ` (Sent at: ${messageData.timestamp})`;
+    timestamp.classList.add("timestamp");
+    messageDiv.appendChild(timestamp);
+
+    // Append the new message to the messages list
+    messagesList.appendChild(messageDiv);
+
+    // Scroll to the bottom to show the latest message
+    messagesList.scrollTop = messagesList.scrollHeight;
+}
