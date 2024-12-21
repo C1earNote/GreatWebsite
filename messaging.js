@@ -1,3 +1,25 @@
+window.onload = function() {
+    const loginStatusElement = document.getElementById("loginStatus");
+    const username = localStorage.getItem("username"); // Assuming the username is saved in localStorage
+    const logoutButton = document.getElementById("logoutButton");
+
+    if (username) {
+        loginStatusElement.textContent = `You are now logged in as ${username}.`;
+        
+        // Add an event listener to handle the logout
+        logoutButton.onclick = function() {
+            localStorage.removeItem("username"); // Remove the username from localStorage
+            window.location.href = "index.html"; // Redirect to the login page
+        };
+
+        // Load the messages for the logged-in user
+        loadMessages(username);
+    } else {
+        loginStatusElement.textContent = "You are not logged in.";
+        logoutButton.style.display = "none"; // Hide the logout button if not logged in
+    }
+};
+
 document.getElementById("messageForm").addEventListener("submit", async function (event) {
     event.preventDefault(); // Prevent the form from refreshing the page
 
@@ -12,7 +34,7 @@ document.getElementById("messageForm").addEventListener("submit", async function
 
     try {
         // Send a POST request to the backend to save the message
-        const response = await fetch("https://greatwebsite.onrender.com/messages", {  // Corrected URL
+        const response = await fetch("https://greatwebsite.onrender.com/messages", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -27,9 +49,8 @@ document.getElementById("messageForm").addEventListener("submit", async function
         const data = await response.json();
 
         if (response.ok) {
-            //alert("Message sent successfully!");  // Display success message
             loadMessages(senderUsername); // Reload messages after sending
-            clearMessageForm();  // Optional: Clear the message form fields
+            clearMessageForm();  // Clear the message form fields
         } else {
             alert(`Error: ${data.message}`);
         }
@@ -39,20 +60,20 @@ document.getElementById("messageForm").addEventListener("submit", async function
     }
 });
 
-// Optional: Clear the message form after sending the message
+// Clear the message form after sending the message
 function clearMessageForm() {
     document.getElementById("receiver").value = "";
     document.getElementById("messageContent").value = "";
 }
 
-// Optional: Load messages function to reload the messages
+// Load messages function to reload the messages
 async function loadMessages(username) {
     try {
         const response = await fetch(`https://greatwebsite.onrender.com/messages/${username}`);
         const data = await response.json();
 
         if (response.ok) {
-            displayMessages(data);  // Assuming you have a function to display messages
+            displayMessages(data);  // Display messages
         } else {
             alert("Error loading messages.");
         }
@@ -61,7 +82,7 @@ async function loadMessages(username) {
     }
 }
 
-// Function to display the messages (for example)
+// Function to display the messages
 function displayMessages(data) {
     const messagesList = document.getElementById("messagesList");
     
@@ -108,10 +129,9 @@ function displayMessages(data) {
 }
 
 // Socket.IO connection to listen for new messages
-const socket = io("https://greatwebsite.onrender.com");  // Ensure the correct URL
+const socket = io("https://greatwebsite.onrender.com");
 
 socket.on("new_message", function (messageData) {
     console.log("New message received:", messageData);
-    // You can directly update the UI or reload messages if necessary
     loadMessages(localStorage.getItem("username"));
 });

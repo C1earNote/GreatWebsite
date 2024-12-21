@@ -11,7 +11,9 @@
 <body>
     <div class="main-container">
         <h1>Great Website</h1>
-        <p>You are now logged in.</p>
+        
+        <!-- This will display the login status dynamically -->
+        <p id="loginStatus"></p> 
 
         <h2>Your Messages</h2>
         <div id="messagesList">
@@ -25,7 +27,8 @@
             <button type="submit">Send Message</button>
         </form>
 
-        <button onclick="window.location.href='index.html'">Logout</button>
+        <!-- Logout button -->
+        <button id="logoutButton">Logout</button>
     </div>
 
     <script src="messaging.js"></script>
