@@ -4,10 +4,10 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f9;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: center; /* Keeps the centering */
+    align-items: flex-start; /* Start alignment to fill available space vertically */
     height: 100vh;
-    overflow: hidden; /* Prevents body from scrolling */
+    overflow: hidden;
 }
 
 /* Main Container */
@@ -16,11 +16,11 @@ body {
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    max-width: 600px;
-    width: 90%;
+    max-width: 900px; /* Increase the max-width to allow it to grow more */
+    width: 100%;
     text-align: center;
-    height: 100vh; /* Fill the full height of the viewport */
-    overflow: hidden; /* Prevents the main container from growing too large */
+    height: 80vh; /* Optional */
+    overflow: hidden;
 }
 
 /* Main Heading */
