@@ -10,7 +10,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
     }
 
     try {
-        const response = await fetch("http://127.0.0.1:5000/login", {
+        const response = await fetch("http://35.160.120.126:5000/login", {  // Use the IP address
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -23,7 +23,6 @@ document.getElementById("loginForm").addEventListener("submit", async function (
         if (response.ok) {
             // Store the username in localStorage
             localStorage.setItem("username", username);
-            //alert("Login successful!");
             window.location.href = "main.html"; // Redirect to the main page
         } else {
             alert(`Error: ${data.message}`);
