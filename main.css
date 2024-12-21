@@ -19,7 +19,7 @@ body {
     max-width: 600px;
     width: 90%;
     text-align: center;
-    height: 80%; /* Limit the height to 80% of the screen */
+    height: 100vh; /* Fill the full height of the viewport */
     overflow: hidden; /* Prevents the main container from growing too large */
 }
 
