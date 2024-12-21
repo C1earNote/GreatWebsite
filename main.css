@@ -6,7 +6,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh; /* Full screen height */
+    height: 100vh;
     overflow: hidden; /* Prevents body from scrolling */
 }
 
@@ -17,12 +17,10 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 20px;
     max-width: 600px;
-    width: 90%; /* Make sure the width is responsive */
+    width: 90%;
     text-align: center;
-    height: 90%; /* Take up 90% of the viewport height */
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
+    height: 80%; /* Limit the height to 80% of the screen */
+    overflow: hidden; /* Prevents the main container from growing too large */
 }
 
 /* Main Heading */
