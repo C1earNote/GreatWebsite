@@ -11,18 +11,21 @@ body {
 }
 
 /* Main Container */
+/* Main Container (Responsive Height) */
 .main-container {
     margin: 10px;
     background-color: #ffffff;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    max-width: 900px; /* Increase the max-width to allow it to grow more */
+    max-width: 900px;
     width: 100%;
     text-align: center;
-    height: 80vh; /* Optional */
-    overflow: hidden;
+    min-height: calc(100vh - 20px); /* Subtract margin to fit within the viewport */
+    overflow-y: auto; /* Enable scrolling for overflowing content */
+    box-sizing: border-box;
 }
+
 
 /* Main Heading */
 .main-container h1 {
