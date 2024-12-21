@@ -63,25 +63,25 @@ async function loadMessages(username) {
 
 // Function to display the messages (for example)
 function displayMessages(data) {
-    const receivedMessagesContainer = document.getElementById("receivedMessages");
-    const sentMessagesContainer = document.getElementById("sentMessages");
-
+    const messagesList = document.getElementById("messagesList");
+    
     // Clear previous messages
-    receivedMessagesContainer.innerHTML = "";
-    sentMessagesContainer.innerHTML = "";
+    messagesList.innerHTML = "";
 
     // Display received messages
     data.received.forEach(msg => {
         const messageDiv = document.createElement("div");
-        messageDiv.textContent = `${msg.sender}: ${msg.content} (Sent at: ${msg.timestamp})`;
-        receivedMessagesContainer.appendChild(messageDiv);
+        messageDiv.classList.add("message");
+        messageDiv.textContent = `User (${msg.sender}): ${msg.content} (Sent at: ${msg.timestamp})`;
+        messagesList.appendChild(messageDiv);
     });
 
     // Display sent messages
     data.sent.forEach(msg => {
         const messageDiv = document.createElement("div");
-        messageDiv.textContent = `${msg.receiver}: ${msg.content} (Sent at: ${msg.timestamp})`;
-        sentMessagesContainer.appendChild(messageDiv);
+        messageDiv.classList.add("message");
+        messageDiv.textContent = `You (To: ${msg.receiver}): ${msg.content} (Sent at: ${msg.timestamp})`;
+        messagesList.appendChild(messageDiv);
     });
 }
 
