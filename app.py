@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -38,27 +39,27 @@ class Message(db.Model):
     sender = db.relationship('User', foreign_keys=[sender_id], backref='sent_messages')
     receiver = db.relationship('User', foreign_keys=[receiver_id], backref='received_messages')
 
-# Create the database tables (Only needed once)
+# Create the database tables
 with app.app_context():
-    db.create_all()
+    try:
+        db.create_all()
+    except Exception as e:
+        print(f"Error initializing the database: {e}")
 
 # Register Endpoint
 @app.route('/register', methods=['POST'])
 def register():
     data = request.json
 
-    # Ensure username and password are provided
     if not data.get('username') or not data.get('password'):
         return jsonify({"message": "Username and password are required"}), 400
 
     username = data.get('username')
     password = data.get('password')
 
-    # Check if user already exists
     if User.query.filter_by(username=username).first():
         return jsonify({"message": "Username already exists"}), 400
 
-    # Hash the password and save user
     hashed_password = hashpw(password.encode('utf-8'), gensalt())
     new_user = User(username=username, password=hashed_password)
     db.session.add(new_user)
@@ -71,31 +72,23 @@ def register():
 def login():
     data = request.json
 
-    # Ensure username and password are provided
     if not data.get('username') or not data.get('password'):
         return jsonify({"message": "Username and password are required"}), 400
 
     username = data.get('username')
     password = data.get('password')
 
-    # Retrieve user from database
     user = User.query.filter_by(username=username).first()
-
-    if not user:
+    if not user or not checkpw(password.encode('utf-8'), user.password):
         return jsonify({"message": "Invalid username or password"}), 401
 
-    # Verify password
-    if checkpw(password.encode('utf-8'), user.password):
-        return jsonify({"message": "Login successful"}), 200
-    else:
-        return jsonify({"message": "Invalid username or password"}), 401
+    return jsonify({"message": "Login successful"}), 200
 
 # Send Message Endpoint
 @app.route('/messages', methods=['POST'])
 def send_message():
     data = request.json
 
-    # Ensure sender, receiver, and content are provided
     sender_username = data.get('sender')
     receiver_username = data.get('receiver')
     content = data.get('content')
@@ -103,22 +96,17 @@ def send_message():
     if not sender_username or not receiver_username or not content:
         return jsonify({"message": "Sender, receiver, and content are required"}), 400
 
-    # Validate sender and receiver existence
     sender = User.query.filter_by(username=sender_username).first()
     receiver = User.query.filter_by(username=receiver_username).first()
 
-    if not sender:
-        return jsonify({"message": f"Sender '{sender_username}' not found"}), 404
-    if not receiver:
-        return jsonify({"message": f"Receiver '{receiver_username}' not found"}), 404
+    if not sender or not receiver:
+        return jsonify({"message": "Sender or receiver not found"}), 404
 
-    # Save the message
     try:
         new_message = Message(sender_id=sender.id, receiver_id=receiver.id, content=content)
         db.session.add(new_message)
         db.session.commit()
 
-        # Emit the new message to connected clients
         message_data = {
             "sender": sender.username,
             "receiver": receiver.username,
@@ -134,17 +122,14 @@ def send_message():
 # Get Messages Endpoint
 @app.route('/messages/<username>', methods=['GET'])
 def get_messages(username):
-    # Retrieve the user from the database
     user = User.query.filter_by(username=username).first()
 
     if not user:
         return jsonify({"message": "User not found"}), 404
 
-    # Get all messages sent and received by the user
     received_messages = Message.query.filter_by(receiver_id=user.id).all()
     sent_messages = Message.query.filter_by(sender_id=user.id).all()
 
-    # Format messages for the response
     received = [{"sender": msg.sender.username, "content": msg.content, "timestamp": msg.timestamp} for msg in received_messages]
     sent = [{"receiver": msg.receiver.username, "content": msg.content, "timestamp": msg.timestamp} for msg in sent_messages]
 
@@ -159,5 +144,7 @@ def handle_connect():
 def handle_disconnect():
     print("A client disconnected.")
 
+# Run the application
 if __name__ == '__main__':
-    socketio.run(app, debug=True, host='0.0.0.0')
+    port = int(os.environ.get('PORT', 5000))
+    socketio.run(app, debug=False, host='0.0.0.0', port=port)
