@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <div class="main-container">
+        <h1>Great Website</h1>
+        <p>You are now logged in.</p>
+
+        <h2>Your Messages</h2>
+        <div id="messagesList">
+            <!-- Messages will be populated here -->
+        </div>
+
+        <h2>Send a Message</h2>
+        <form id="messageForm">
+            <input type="text" id="receiver" placeholder="Enter receiver username" required>
+            <textarea id="messageContent" placeholder="Write your message" required></textarea>
+            <button type="submit">Send Message</button>
+        </form>
+
+        <button onclick="window.location.href='index.html'">Logout</button>
+    </div>
+
+    <script src="messaging.js"></script>
+</body>
+</html>
