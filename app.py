@@ -114,6 +114,8 @@ def send_message():
             "timestamp": new_message.timestamp.strftime("%Y-%m-%d %H:%M:%S")
         }
         socketio.emit('new_message', message_data)
+        print("Message emitted to frontend: ", message_data)  # Log message emission
+
 
         return jsonify({"message": "Message sent successfully"}), 201
     except Exception as e:
@@ -147,4 +149,4 @@ def handle_disconnect():
 # Run the application
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    socketio.run(app, debug=False, host='0.0.0.0', port=port)
+    socketio.run(app, debug=True, host='0.0.0.0', port=port)
