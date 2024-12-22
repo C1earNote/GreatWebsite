@@ -18,6 +18,20 @@ window.onload = function() {
         loginStatusElement.textContent = "You are not logged in.";
         logoutButton.style.display = "none"; // Hide the logout button if not logged in
     }
+
+    // Socket.IO connection to listen for new messages
+    const socket = io("https://greatwebsite.onrender.com");
+
+    socket.on("new_message", function (messageData) {
+        console.log("New message received:", messageData);
+
+        // Check if the message involves the logged-in user
+        const username = localStorage.getItem("username");
+        if (messageData.sender === username || messageData.receiver === username) {
+            // Add the new message to the messages list dynamically
+            addMessageToList(messageData);
+        }
+    });
 };
 
 document.getElementById("messageForm").addEventListener("submit", async function (event) {
@@ -126,20 +140,6 @@ function displayMessages(data) {
         messagesList.appendChild(messageDiv);
     });
 }
-
-// Socket.IO connection to listen for new messages
-const socket = io("https://greatwebsite.onrender.com");
-
-socket.on("new_message", function (messageData) {
-    console.log("New message received:", messageData);
-
-    // Check if the message involves the logged-in user
-    const username = localStorage.getItem("username");
-    if (messageData.sender === username || messageData.receiver === username) {
-        // Add the new message to the messages list dynamically
-        addMessageToList(messageData);
-    }
-});
 
 // Function to dynamically add a new message to the messages list
 function addMessageToList(messageData) {
