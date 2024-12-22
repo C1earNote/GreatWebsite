@@ -81,6 +81,7 @@ def login():
 @app.route('/messages', methods=['POST'])
 def send_message():
     data = request.json
+    print("Received data:", data)  # Log the received data
 
     sender_username = data.get('sender')
     receiver_username = data.get('receiver')
@@ -106,9 +107,10 @@ def send_message():
         'timestamp': new_message.timestamp.strftime("%Y-%m-%d %H:%M:%S")
     }
     socketio.emit('new_message', message_data, broadcast=True)
-    print("Message emitted to frontend: ", message_data)  # Log message emission
+    print("Message emitted to frontend: ", message_data)
 
     return jsonify({"message": "Message sent successfully"}), 201
+
 
 # Get Messages Endpoint
 @app.route('/messages/<username>', methods=['GET'])
@@ -142,4 +144,4 @@ def handle_disconnect():
 # Run the application
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    socketio.run(app, host='0.0.0.0', port=port, allow_unsafe_werkzeug=True)
+    socketio.run(app, host='0.0.0.0',debug=True, port=port, allow_unsafe_werkzeug=True)
