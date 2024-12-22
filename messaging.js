@@ -1,33 +1,17 @@
 window.onload = function () {
-    const loginStatusElement = document.getElementById("loginStatus");
-    const username = localStorage.getItem("username"); // Assuming the username is saved in localStorage
-    const logoutButton = document.getElementById("logoutButton");
-
-    if (username) {
-        loginStatusElement.textContent = `You are now logged in as ${username}.`;
-
-        // Add an event listener to handle the logout
-        logoutButton.onclick = function () {
-            localStorage.removeItem("username"); // Remove the username from localStorage
-            window.location.href = "index.html"; // Redirect to the login page
-        };
-
-        // Load the messages for the logged-in user
-        loadMessages(username);
-    } else {
-        loginStatusElement.textContent = "You are not logged in.";
-        logoutButton.style.display = "none"; // Hide the logout button if not logged in
-    }
-
-    // Socket.IO connection to listen for new messages
     const socket = io("https://greatwebsite.onrender.com");
 
-    // Listen for new messages and reload the messages for both sender and receiver
-    socket.on("new_message", function (messageData) {
-        console.log("New message received:", messageData);
+    // Emit the join event with the username
+    const username = localStorage.getItem("username");
+    if (username) {
+        socket.emit("join", { username: username });
+    }
+
+    // Listen for the message_sent event
+    socket.on("message_sent", function (messageData) {
+        console.log("Message sent event received:", messageData);
 
         // Check if the message involves the logged-in user
-        const username = localStorage.getItem("username");
         if (messageData.sender === username || messageData.receiver === username) {
             loadMessages(username); // Reload messages for the involved user
         }

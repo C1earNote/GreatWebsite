@@ -2,7 +2,7 @@ import os
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room
 from bcrypt import hashpw, gensalt, checkpw
 from datetime import datetime
 
@@ -78,6 +78,7 @@ def login():
     return jsonify({"message": "Login successful"}), 200
 
 # Send Message Endpoint
+# Send Message Endpoint
 @app.route('/messages', methods=['POST'])
 def send_message():
     data = request.json
@@ -106,11 +107,21 @@ def send_message():
         'content': content,
         'timestamp': new_message.timestamp.strftime("%Y-%m-%d %H:%M:%S")
     }
-    socketio.emit('new_message', message_data, broadcast=True)
-    print("Message emitted to frontend: ", message_data)
+
+    # Emit message_sent event to both sender and receiver
+    socketio.emit('message_sent', message_data, to=f"user_{sender_username}")
+    socketio.emit('message_sent', message_data, to=f"user_{receiver_username}")
+    print("Message emitted to frontend:", message_data)
 
     return jsonify({"message": "Message sent successfully"}), 201
 
+
+@socketio.on("join")
+def handle_join(data):
+    username = data.get("username")
+    if username:
+        join_room(f"user_{username}")  # Join a unique room for the user
+        print(f"User {username} joined their room.")
 
 # Get Messages Endpoint
 @app.route('/messages/<username>', methods=['GET'])
