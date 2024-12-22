@@ -64,7 +64,7 @@ document.getElementById("messageForm").addEventListener("submit", async function
 
         if (response.ok) {
             loadMessages(senderUsername); // Reload messages after sending
-            loadMessages(receiver)
+            loadMessages(receiver);
             clearMessageForm();  // Clear the message form fields
         } else {
             alert(`Error: ${data.message}`);
