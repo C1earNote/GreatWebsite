@@ -1,13 +1,13 @@
-window.onload = function() {
+window.onload = function () {
     const loginStatusElement = document.getElementById("loginStatus");
     const username = localStorage.getItem("username"); // Assuming the username is saved in localStorage
     const logoutButton = document.getElementById("logoutButton");
 
     if (username) {
         loginStatusElement.textContent = `You are now logged in as ${username}.`;
-        
+
         // Add an event listener to handle the logout
-        logoutButton.onclick = function() {
+        logoutButton.onclick = function () {
             localStorage.removeItem("username"); // Remove the username from localStorage
             window.location.href = "index.html"; // Redirect to the login page
         };
@@ -22,14 +22,14 @@ window.onload = function() {
     // Socket.IO connection to listen for new messages
     const socket = io("https://greatwebsite.onrender.com");
 
+    // Listen for new messages and reload the messages for both sender and receiver
     socket.on("new_message", function (messageData) {
         console.log("New message received:", messageData);
 
         // Check if the message involves the logged-in user
         const username = localStorage.getItem("username");
         if (messageData.sender === username || messageData.receiver === username) {
-            // Add the new message to the messages list dynamically
-            addMessageToList(messageData);
+            loadMessages(username); // Reload messages for the involved user
         }
     });
 };
@@ -63,21 +63,22 @@ document.getElementById("messageForm").addEventListener("submit", async function
         const data = await response.json();
 
         if (response.ok) {
-            loadMessages(senderUsername); // Reload messages after sending
-            loadMessages(receiver);
-            clearMessageForm();  // Clear the message form fields
+            // Notify both sender and receiver about the new message
+            const socket = io("https://greatwebsite.onrender.com");
+            socket.emit("message_sent", { sender: senderUsername, receiver: receiver });
+
+            loadMessages(senderUsername); // Reload messages for sender
+            clearMessageForm(); // Clear the message form fields
         } else {
-            alert(`Error: ${data.message}`);
+            alert(`BRUHError: ${data.message}`); // Personalized error handling
         }
     } catch (error) {
-        //alert("An error occurred. Please try again later.");
         console.error("Error:", error);
     }
 });
 
 // Clear the message form after sending the message
 function clearMessageForm() {
-    //document.getElementById("receiver").value = "";
     document.getElementById("messageContent").value = "";
 }
 
@@ -88,7 +89,7 @@ async function loadMessages(username) {
         const data = await response.json();
 
         if (response.ok) {
-            displayMessages(data);  // Display messages
+            displayMessages(data); // Display messages
         } else {
             alert("Error loading messages.");
         }
@@ -105,7 +106,7 @@ function displayMessages(data) {
     messagesList.innerHTML = "";
 
     // Combine received and sent messages into a single array and sort by timestamp
-    const allMessages = [...data.received.map(msg => ({ ...msg, type: "received" })), 
+    const allMessages = [...data.received.map(msg => ({ ...msg, type: "received" })),
                          ...data.sent.map(msg => ({ ...msg, type: "sent" }))];
 
     // Sort messages by timestamp
@@ -133,41 +134,11 @@ function displayMessages(data) {
         }
 
         timestamp.textContent = ` (Sent at: ${msg.timestamp})`;
-        timestamp.classList.add("timestamp");  // Apply a class for styling
+        timestamp.classList.add("timestamp"); // Apply a class for styling
 
         // Append both parts to the message div
         messageDiv.appendChild(messageContent);
         messageDiv.appendChild(timestamp);
         messagesList.appendChild(messageDiv);
     });
-}
-
-// Function to dynamically add a new message to the messages list
-function addMessageToList(messageData) {
-    const messagesList = document.getElementById("messagesList");
-
-    // Create a new message div
-    const messageDiv = document.createElement("div");
-    messageDiv.classList.add("message");
-
-    // Determine the type of message (sent or received)
-    if (messageData.sender === localStorage.getItem("username")) {
-        messageDiv.classList.add("sent");
-        messageDiv.textContent = `You: ${messageData.content}`;
-    } else {
-        messageDiv.classList.add("received");
-        messageDiv.textContent = `${messageData.sender}: ${messageData.content}`;
-    }
-
-    // Add timestamp
-    const timestamp = document.createElement("span");
-    timestamp.textContent = ` (Sent at: ${messageData.timestamp})`;
-    timestamp.classList.add("timestamp");
-    messageDiv.appendChild(timestamp);
-
-    // Append the new message to the messages list
-    messagesList.appendChild(messageDiv);
-
-    // Scroll to the bottom to show the latest message
-    messagesList.scrollTop = messagesList.scrollHeight;
 }
