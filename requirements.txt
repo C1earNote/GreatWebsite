@@ -4,4 +4,3 @@ Flask-Cors==3.0.10
 Flask-SocketIO==5.3.3
 bcrypt==4.0.1
 psycopg2-binary==2.9.7
-pytz==2023.3
