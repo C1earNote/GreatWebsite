@@ -5,7 +5,6 @@ from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 from bcrypt import hashpw, gensalt, checkpw
 from datetime import datetime
-from pytz import timezone
 
 app = Flask(__name__)
 
@@ -20,9 +19,6 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://dbdbase_user:w82vkLMjw6Q4UoApnlzIjtCCCwIku0c9@dpg-ctjebsd2ng1s73bj0e70-a.oregon-postgres.render.com/dbdbase'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-
-# Define IST timezone
-IST = timezone('Asia/Kolkata')
 
 # Define User model
 class User(db.Model):
@@ -74,6 +70,7 @@ def login():
     username = data.get('username')
     password = data.get('password')
 
+    # Use SQLAlchemy query
     user = User.query.filter_by(username=username).first()
     if not user or not checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
         return jsonify({"message": "Invalid username or password"}), 401
@@ -102,14 +99,11 @@ def send_message():
     db.session.add(new_message)
     db.session.commit()
 
-    # Convert UTC timestamp to IST
-    ist_timestamp = new_message.timestamp.astimezone(IST)
-
     message_data = {
         'sender': sender.username,
         'receiver': receiver.username,
         'content': content,
-        'timestamp': ist_timestamp.strftime("%Y-%m-%d %H:%M:%S")
+        'timestamp': new_message.timestamp.strftime("%Y-%m-%d %H:%M:%S")
     }
     socketio.emit('new_message', message_data)
     print("Message emitted to frontend: ", message_data)  # Log message emission
@@ -127,22 +121,12 @@ def get_messages(username):
     received_messages = Message.query.filter_by(receiver_id=user.id).all()
     sent_messages = Message.query.filter_by(sender_id=user.id).all()
 
-    received = [
-        {
-            "sender": User.query.get(msg.sender_id).username,
-            "content": msg.content,
-            "timestamp": msg.timestamp.astimezone(IST).strftime("%Y-%m-%d %H:%M:%S")
-        }
-        for msg in received_messages
-    ]
-    sent = [
-        {
-            "receiver": User.query.get(msg.receiver_id).username,
-            "content": msg.content,
-            "timestamp": msg.timestamp.astimezone(IST).strftime("%Y-%m-%d %H:%M:%S")
-        }
-        for msg in sent_messages
-    ]
+    received = [{"sender": User.query.get(msg.sender_id).username, 
+                 "content": msg.content, 
+                 "timestamp": msg.timestamp.strftime("%Y-%m-%d %H:%M:%S")} for msg in received_messages]
+    sent = [{"receiver": User.query.get(msg.receiver_id).username, 
+             "content": msg.content, 
+             "timestamp": msg.timestamp.strftime("%Y-%m-%d %H:%M:%S")} for msg in sent_messages]
 
     return jsonify({"received": received, "sent": sent}), 200
 
