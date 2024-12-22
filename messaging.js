@@ -64,12 +64,13 @@ document.getElementById("messageForm").addEventListener("submit", async function
 
         if (response.ok) {
             loadMessages(senderUsername); // Reload messages after sending
+            loadMessages(receiver)
             clearMessageForm();  // Clear the message form fields
         } else {
             alert(`Error: ${data.message}`);
         }
     } catch (error) {
-        alert("An error occurred. Please try again later.");
+        //alert("An error occurred. Please try again later.");
         console.error("Error:", error);
     }
 });
