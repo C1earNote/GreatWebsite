@@ -105,7 +105,7 @@ def send_message():
         'content': content,
         'timestamp': new_message.timestamp.strftime("%Y-%m-%d %H:%M:%S")
     }
-    socketio.emit('new_message', message_data)
+    socketio.emit('new_message', message_data, broadcast=True)
     print("Message emitted to frontend: ", message_data)  # Log message emission
 
     return jsonify({"message": "Message sent successfully"}), 201
